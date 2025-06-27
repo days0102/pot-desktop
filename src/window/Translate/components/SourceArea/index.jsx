@@ -211,6 +211,38 @@ export default function SourceArea(props) {
         }
     };
 
+    // useEffect(() => {
+    //     const handleBlur = () => {
+    //         // 失去焦点时隐藏窗口
+    //         appWindow.hide();
+    //     };
+    
+    //     const handleVisibilityChange = () => {
+    //         if (document.visibilityState === 'hidden') {
+    //             appWindow.hide();
+    //         }
+    //     };
+    
+    //     window.addEventListener('blur', handleBlur);
+    //     document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    //     return () => {
+    //         window.removeEventListener('blur', handleBlur);
+    //         document.removeEventListener('visibilitychange', handleVisibilityChange);
+    //     };
+    // }, []);
+
+    // useEffect(() => {
+    //     listen('show_translate_icon', (event) => {
+    //       const { text, x, y } = event.payload;
+    //       setSelectedText(text);
+    //       setIconPosition({ x, y });
+    //       setShowIcon(true);
+    //     });
+    //   }, []);
+      
+    
+
     useEffect(() => {
         if (hideWindow !== null) {
             if (unlisten) {

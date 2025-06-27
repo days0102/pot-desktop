@@ -125,6 +125,7 @@ fn main() {
                 clipboard_monitor.to_string(),
             )));
             start_clipboard_monitor(app.handle());
+            start_silde_translate(app.handle());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
