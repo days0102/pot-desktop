@@ -125,7 +125,19 @@ fn main() {
                 clipboard_monitor.to_string(),
             )));
             start_clipboard_monitor(app.handle());
+
+            let silde_translate = match get("silde_translate") {
+                Some(v) => v.as_bool().unwrap(),
+                None => {
+                    set("silde_translate", false);
+                    false
+                }
+            };
+            app.manage(SildeTranslateEnableWrapper(Mutex::new(
+                silde_translate.to_string(),
+            )));
             start_silde_translate(app.handle());
+            
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

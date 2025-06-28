@@ -75,6 +75,20 @@ pub fn update_tray(app_handle: tauri::AppHandle, mut language: String, mut copy_
         .set_selected(enable_clipboard_monitor)
         .unwrap();
 
+
+    let enable_silde_translate = match get("silde_translate") {
+        Some(v) => v.as_bool().unwrap(),
+        None => {
+            set("silde_translate", false);
+            false
+        }
+    };
+
+    tray_handle
+        .get_item("silde_translate")
+        .set_selected(enable_silde_translate)
+        .unwrap();
+
     match copy_mode.as_str() {
         "source" => tray_handle
             .get_item("copy_source")
@@ -102,6 +116,7 @@ pub fn tray_event_handler<'a>(app: &'a AppHandle, event: SystemTrayEvent) {
         SystemTrayEvent::LeftClick { .. } => on_tray_click(),
         SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
             "input_translate" => on_input_translate_click(),
+            "silde_translate" => on_silde_translate_click(app),
             "copy_source" => on_auto_copy_click(app, "source"),
             "clipboard_monitor" => on_clipboard_monitor_click(app),
             "copy_target" => on_auto_copy_click(app, "target"),
@@ -168,6 +183,35 @@ fn on_clipboard_monitor_click(app: &AppHandle) {
         .set_selected(current)
         .unwrap();
 }
+
+fn on_silde_translate_click(app: &AppHandle) {
+    let enable_silde_translate = match get("silde_translate") {
+        Some(v) => v.as_bool().unwrap(),
+        None => {
+            set("silde_translate", false);
+            false
+        }
+    };
+    let current = !enable_silde_translate;
+    // Update Config File
+    set("silde_translate", current);
+    // Update State and Start Monitor
+    let state = app.state::<SildeTranslateEnableWrapper>();
+    state
+        .0
+        .lock()
+        .unwrap()
+        .replace_range(.., &current.to_string());
+    // if current {
+    //     start_silde_translate(app.app_handle());
+    // }
+    // Update Tray Menu Status
+    app.tray_handle()
+        .get_item("silde_translate")
+        .set_selected(current)
+        .unwrap();
+}
+
 fn on_auto_copy_click(app: &AppHandle, mode: &str) {
     info!("Set copy mode to: {}", mode);
     set("translate_auto_copy", mode);
@@ -243,6 +287,7 @@ fn tray_menu_en() -> tauri::SystemTrayMenu {
 
 fn tray_menu_zh_cn() -> tauri::SystemTrayMenu {
     let input_translate = CustomMenuItem::new("input_translate", "输入翻译");
+    let silde_translate = CustomMenuItem::new("silde_translate", "划词翻译");
     let clipboard_monitor = CustomMenuItem::new("clipboard_monitor", "监听剪切板");
     let copy_source = CustomMenuItem::new("copy_source", "原文");
     let copy_target = CustomMenuItem::new("copy_target", "译文");
@@ -258,6 +303,7 @@ fn tray_menu_zh_cn() -> tauri::SystemTrayMenu {
     let quit = CustomMenuItem::new("quit", "退出");
     SystemTrayMenu::new()
         .add_item(input_translate)
+        .add_item(silde_translate)
         .add_item(clipboard_monitor)
         .add_submenu(SystemTraySubmenu::new(
             "自动复制",

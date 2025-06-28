@@ -2,9 +2,11 @@ use crate::window::text_translate;
 use crate::window::silde_translate;
 use crate::window::translateicon_window;
 use std::sync::Mutex;
+use base64::write::StrConsumer;
 use tauri::{ClipboardManager, Manager};
 
 pub struct ClipboardMonitorEnableWrapper(pub Mutex<String>);
+pub struct SildeTranslateEnableWrapper(pub Mutex<String>);
 
 use rdev::{listen, Event, EventType, Button};
 use std::sync::Arc;
@@ -62,6 +64,13 @@ pub fn start_silde_translate(app_handle: tauri::AppHandle) {
 
         move || {
             if let Err(error) = listen(move |event: Event| {
+                // 检查是否启用划词翻译
+                let state = app_handle.state::<SildeTranslateEnableWrapper>();
+                if let Ok(slide_enable) = state.0.lock() {
+                    if slide_enable.contains("false") {
+                        return;
+                    }
+                }
                 match event.event_type {
                     EventType::MouseMove { x, y } => {
                         // 记录鼠标当前坐标
