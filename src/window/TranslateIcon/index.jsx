@@ -224,7 +224,7 @@ export default function TranslateIcon() {
         collectionServiceInstanceList,
     ]);
 
-    // 这里是整个组件的 return 部分，基于 iconView 状态切换
+    // Here is the return part of the whole component, based on the iconView state switching
     return iconView ? (
         <div
             className="w-screen h-screen bg-background flex items-center justify-center"

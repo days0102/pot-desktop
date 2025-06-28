@@ -2,7 +2,6 @@ use crate::window::text_translate;
 use crate::window::silde_translate;
 use crate::window::translateicon_window;
 use std::sync::Mutex;
-use base64::write::StrConsumer;
 use tauri::{ClipboardManager, Manager};
 
 pub struct ClipboardMonitorEnableWrapper(pub Mutex<String>);
@@ -14,6 +13,7 @@ use std::sync::Arc;
 fn get_selected_text() -> Option<String> {
     #[cfg(target_os = "macos")]
     {
+        // todo
         use std::process::Command;
         let output = Command::new("pbpaste").output().ok()?;
         if output.status.success() {
@@ -37,7 +37,7 @@ fn get_selected_text() -> Option<String> {
 
         let text = String::from_utf8_lossy(&output.stdout).to_string();
         if text.trim().is_empty() {
-            return None; // 明确无选中文本
+            return None; // clearly unchecked text
         }
         Some(text)
     }
@@ -45,7 +45,7 @@ fn get_selected_text() -> Option<String> {
 
     #[cfg(target_os = "windows")]
     {
-        None // 可考虑后期引入 clipboard crate 或 uiautomation
+        None // todo
     }
 }
 
@@ -64,7 +64,7 @@ pub fn start_silde_translate(app_handle: tauri::AppHandle) {
 
         move || {
             if let Err(error) = listen(move |event: Event| {
-                // 检查是否启用划词翻译
+                // check if stroke translation is enabled
                 let state = app_handle.state::<SildeTranslateEnableWrapper>();
                 if let Ok(slide_enable) = state.0.lock() {
                     if slide_enable.contains("false") {
@@ -73,7 +73,7 @@ pub fn start_silde_translate(app_handle: tauri::AppHandle) {
                 }
                 match event.event_type {
                     EventType::MouseMove { x, y } => {
-                        // 记录鼠标当前坐标
+                        // record the current coordinates of the mouse
                         let mut pos = last_mouse_pos.lock().unwrap();
                         *pos = (x, y);
                     }
@@ -93,19 +93,17 @@ pub fn start_silde_translate(app_handle: tauri::AppHandle) {
                                 if let Some(selected) = get_selected_text() {
                                     let mut last = last_text.lock().unwrap();
                                     if *last!=selected && !selected.trim().is_empty() {
-                                        println!("选中并释放，文本为：{}", selected);
                                         *last = selected.clone();
                                         silde_translate(selected);
                                     }else if *last==selected && !selected.trim().is_empty() {
-                                        // 选中文本相同，不处理或只是显示窗口
+                                        // selected text is the same, not processed or just displayed in the window
                                         let window = translateicon_window();
                                         window.show().unwrap();
                                         window.set_focus().ok();
                                     }
                                 }
-                            } else {
-                                println!("点击无拖拽，忽略");
-                            }
+                            } 
+                            // else click no drag, ignore.
                         }
                     }
                     _ => {}

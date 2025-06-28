@@ -436,7 +436,7 @@ pub fn translateicon_window() -> Window {
         }
     };
 
-    // 添加偏移量，避免鼠标直接触发悬停
+    // Add offsets to avoid direct mouse triggered hovering
     const OFFSET: i32 = 20;
     mouse_position.x += OFFSET;
     mouse_position.y += OFFSET;
@@ -480,16 +480,16 @@ pub fn translateicon_window() -> Window {
             .unwrap();
         return window;
     }
-    // 注册失焦事件，失焦就关闭
+    // Register for out-of-focus events and close when out of focus
     let cloned = window.clone();
     window.on_window_event(move |event| {
         if let tauri::WindowEvent::Focused(false) = event {
-            cloned.hide().unwrap(); // 或 close()
+            cloned.hide().unwrap(); // or close()?
         }
     });
 
     window.set_skip_taskbar(true).unwrap();
-    // 设置窗口为可见（重要！）
+    // Set window to visible (important!)
     window.show().unwrap_or_else(|e| {
         eprintln!("Failed to show window: {}", e);
     });
@@ -581,7 +581,7 @@ pub fn translateicon_window() -> Window {
         }
     }
 
-    // // 确保窗口在设置完成后可见和有焦点
+    // Ensure that the window is visible and has focus when the setup is complete
     // window.set_focus().unwrap_or_else(|e| {
     //     eprintln!("Failed to set focus: {}", e);
     // });
